@@ -5,27 +5,64 @@
 @section Scripts
 {
     <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
- <!--Bu sınıfı eklemek için proje->Add->Client-Side Library-> provider: unpkg, library: microsoft/signalr ardından Choose spesific files diyip sadece browser içerisindeki signalr.js ve signalr.min.js seçip install-->
+    <!--Bu sınıfı eklemek için proje->Add->Client-Side Library-> provider: unpkg, library: microsoft/signalr ardından Choose spesific files diyip sadece browser içerisindeki signalr.js ve signalr.min.js seçip install-->
 
     <script type="text/javascript">
 
         $(document).ready(() => {
 
-            var connection = new signalR.HubConnectionBuilder().configureLogging(signalR.LogLevel.Information).withUrl("https://localhost:44380/MyHub").build();//SignalR.API url'im + /MyHub 
-            //Yukarıda aynı zamanda Information seviyesinden itibaren  consol tarafına dinle ve yaz demek önem sırasına göre  Trace, Debug, Information, Warning, Error, Critical olarak önem yükseliyor
+            var connection = new signalR.HubConnectionBuilder().configureLogging(signalR.LogLevel.Information).withAutomaticReconnect().withUrl("https://localhost:44380/MyHub").build();//SignalR.API url'im + /MyHub
+            //Yukarıda aynı zamanda Information seviyesinden itibaren  consol tarafına dinle ve yaz demek önem sırasına göre  Trace, Debug, Information, Warning, Error, Critical olarak önem yükseliyor zorunlu degil
+            //Yukarıda withAutomaticReconnect() methodu ise 0,2,10,30 saniyede sırasıyla başarılı olaran kadar kopan bağlantı varsa bağlanmayı dener.0 sn olmayınca 2 sn bekler yine olmazsa 10sn ve en son 30 sn bekler
+            // bu saniyeleri kendimiz vermek istiyorsak withAutomaticReconnect([1000,3000,5000,7000]) burada 1,3,5,7 saniye yaptık bu methodda zorunlu değil
 
+            function connectionDurumu() {
+                $("#connectionDurumu").text(connection.connectionState);
+            }
 
-            $("#connectionDurumu").text(connection.connectionState);
+            function start() {
+                connection.start()
+                    .then(() =>//Başarılı olursa gerçekleşecek Method
+                    {
+                        connectionDurumu();
+                        $("#yukleniyor").hide();
+                    })
+                    .catch((err) =>//Hata verirse gerçekleşecek method
+                    {
+                        console.log(err);
+                        setTimeout(() => {//2 saniye sonra bağlantı tekrar denensin 
+                            start(),2000
+                        });
+                    });
+            }
 
-            connection.start()
-                .then(() =>//Başarılı olursa gerçekleşecek Method
-                {
-                    $("#connectionDurumu").text(connection.connectionState);
-                })
-                .catch((err) =>//Hata verirse gerçekleşecek method
-                {
-                    console.log(err)
-                });
+            connectionDurumu();           
+
+            start();
+           
+
+            connection.on("AdiAl", (name) => {//Bir methoda üye olma işlemi on ile gerçekleşir. Önceden dediğimiz gibi signalr tüm clientlara istek gönderir sadece üye olanlar görür
+
+                $("#namesList").append(`<li class="list-group-item"> ${name} </li>`)//   ` bu işaret  altgr + ,   tuşları ile oluyor ' bununla karıştırma
+            });
+
+            connection.onreconnecting(err => { //withAutomaticReconnect() metodunda ilk tekrar istek yaptığında bu method çalışır
+                $("#yukleniyor").show();
+                connectionDurumu();
+                console.log("onreconnection :" + err)
+            });
+
+            connection.onreconnected(connectionId => {  //withAutomaticReconnect() metodunda yeniden bağlantı gerçekleştiğinde bu method çalışır
+                $("#yukleniyor").hide();
+                connectionDurumu();
+            });
+
+            connection.onclose(() => {//withAutomaticReconnect() metodunda yeniden bağlantı gerçekleşmediğinde bu method çalışır
+                $("#yukleniyor").hide();
+                connectionDurumu();
+                start();//Yeniden bağlanmayı denesin
+            });
+
 
             $("#btnNameSave").click(() => {
 
@@ -40,13 +77,9 @@
                     });
             });
 
-            connection.on("AdiAl", (name) => {//Bir methoda üye olma işlemi on ile gerçekleşir. Önceden dediğimiz gibi signalr tüm clientlara istek gönderir sadece üye olanlar görür
-
-                $("#namesList").append(`<li class="list-group-item"> ${name} </li>`)//   ` bu işaret  altgr + ,   tuşları ile oluyor ' bununla karıştırma
-            }) 
         });
 
-       
+
     </script>
 }
 
@@ -56,13 +89,20 @@
         <button id="btnNameSave" class="btn btn-primary">İsim Kaydet</button>
 
         <div class="alert alert-info">
-            Bağlantı Durumu: <strong id="connectionDurumu"></strong>
+            <div class="float-left">
+                Bağlantı Durumu: <strong id="connectionDurumu"></strong>
+            </div>
+            <div class="float-right">
+                <div id="yukleniyor" class="spinner-border" role="status">
+                    <span class="sr-only">Yükleniyor...</span>
+                </div>
+            </div>
+            <div class="clearfix"></div>
         </div>
     </div>
 
     <div class="col-md-8 offset-2">
         <ul class="list-group" id="namesList">
-            
         </ul>
     </div>
 </div>
