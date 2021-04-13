@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using SignalR.API.Hubs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,18 +24,18 @@ namespace SignalR.API
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
 
             services.AddControllers();
+            services.AddSignalR();//Signal kullanýlacaðýný belirtiyoruz
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SignalR.API", Version = "v1" });
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -53,6 +54,7 @@ namespace SignalR.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<MyHub>("/MyHub");//Sonradan ekledik. MyHub clasýmýzý burdan tanýmladýk ve Sitemiz/MyHub ile baðlanabiliriz
             });
         }
     }
