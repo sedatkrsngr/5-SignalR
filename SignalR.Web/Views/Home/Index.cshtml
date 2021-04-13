@@ -76,6 +76,13 @@
             });
             //
 
+            //IHubxContext Örn. MyHub Clasına Controller içinden ulaştık
+            connection.on("Duyuru", (duyurumetni) => {
+                $("#duyuru").html(`<div class="alert alert-danger">${duyurumetni}</div>`);
+            });
+
+            //
+
             //Click Button
             $("#btnNameSave").click(() => {
 
@@ -113,6 +120,7 @@
             </div>
             <div class="clearfix"></div>
         </div>
+        <div id="duyuru"></div>
     </div>
 
     <div class="col-md-8 offset-2">
