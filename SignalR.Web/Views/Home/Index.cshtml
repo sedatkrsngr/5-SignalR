@@ -4,13 +4,17 @@
 
 @section Scripts
 {
-    <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script> <!--Bu sınıfı eklemek için proje->Add->Client-Side Library-> provider: unpkg, library: microsoft/signalr ardından Choose spesific files diyip sadece browser içerisindeki signalr.js ve signalr.min.js seçip install diyoruz  -->
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+ <!--Bu sınıfı eklemek için proje->Add->Client-Side Library-> provider: unpkg, library: microsoft/signalr ardından Choose spesific files diyip sadece browser içerisindeki signalr.js ve signalr.min.js seçip install-->
 
     <script type="text/javascript">
 
         $(document).ready(() => {
 
-            var connection = new signalR.HubConnectionBuilder().withUrl("https://localhost:44380/MyHub").build();//SignalR.API url'im + /MyHub
+            var connection = new signalR.HubConnectionBuilder().configureLogging(signalR.LogLevel.Information).withUrl("https://localhost:44380/MyHub").build();//SignalR.API url'im + /MyHub 
+            //Yukarıda aynı zamanda Information seviyesinden itibaren  consol tarafına dinle ve yaz demek önem sırasına göre  Trace, Debug, Information, Warning, Error, Critical olarak önem yükseliyor
+
+
             $("#connectionDurumu").text(connection.connectionState);
 
             connection.start()
