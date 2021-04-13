@@ -16,6 +16,8 @@
             //Yukarıda withAutomaticReconnect() methodu ise 0,2,10,30 saniyede sırasıyla başarılı olaran kadar kopan bağlantı varsa bağlanmayı dener.0 sn olmayınca 2 sn bekler yine olmazsa 10sn ve en son 30 sn bekler
             // bu saniyeleri kendimiz vermek istiyorsak withAutomaticReconnect([1000,3000,5000,7000]) burada 1,3,5,7 saniye yaptık bu methodda zorunlu değil
 
+
+            //Functions
             function connectionDurumu() {
                 $("#connectionDurumu").text(connection.connectionState);
             }
@@ -30,22 +32,26 @@
                     .catch((err) =>//Hata verirse gerçekleşecek method
                     {
                         console.log(err);//consolda görmek için ekledik
-                        setTimeout(() => {//2 saniye sonra bağlantı tekrar denensin 
-                            start(),2000
+                        setTimeout(() => {//2 saniye sonra bağlantı tekrar denensin
+                            start(), 2000
                         });
                     });
             }
+            //
 
-            connectionDurumu();           
+            connectionDurumu();
 
             start();
-           
 
+            //Standart client üyeliği örn
             connection.on("AdiAl", (name) => {//Bir methoda üye olma işlemi on ile gerçekleşir. Önceden dediğimiz gibi signalr tüm clientlara istek gönderir sadece üye olanlar görür üye olunduğunda dönen değere name dedik isimler geldiği için
 
                 $("#namesList").append(`<li class="list-group-item"> ${name} </li>`)//   ` bu işaret  altgr + ,   tuşları ile oluyor ' bununla karıştırma
             });
+            //
 
+
+            //AutomaticReconnect Methods  withAutomaticReconnect() connectionda kullanılırsa, kullanabiliriz
             connection.onreconnecting(err => { //withAutomaticReconnect() metodunda ilk tekrar istek yaptığında bu method çalışır
                 $("#yukleniyor").show();
                 connectionDurumu();
@@ -62,8 +68,15 @@
                 connectionDurumu();
                 start();//Yeniden bağlanmayı denesin
             });
+            //
 
+            //VirtualMethods üyeliği örn  APı-> MyHub içerisinde override edilen connect ve disconnect metotları
+            connection.on("KullaniciSayisiDön", (KullaniciSayisi) => {
+                $("#kullaniciSayisi").text(KullaniciSayisi);
+            });
+            //
 
+            //Click Button
             $("#btnNameSave").click(() => {
 
                 connection.invoke("SendName", $("#txtName").val())//server tarafına istek atmak için kullanılır invoke SendName SignalR.API->MyHub içerisindeki method
@@ -91,6 +104,7 @@
         <div class="alert alert-info">
             <div class="float-left">
                 Bağlantı Durumu: <strong id="connectionDurumu"></strong>
+                ,Kullanici Sayisi: <strong id="kullaniciSayisi"></strong>
             </div>
             <div class="float-right">
                 <div id="yukleniyor" class="spinner-border" role="status">
