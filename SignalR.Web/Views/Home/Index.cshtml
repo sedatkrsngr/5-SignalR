@@ -17,7 +17,9 @@
             // bu saniyeleri kendimiz vermek istiyorsak withAutomaticReconnect([1000,3000,5000,7000]) burada 1,3,5,7 saniye yaptık bu methodda zorunlu değil
 
 
-            //Functions
+         
+
+
             function connectionDurumu() {
                 $("#connectionDurumu").text(connection.connectionState);
             }
@@ -28,6 +30,8 @@
                     {
                         connectionDurumu();
                         $("#yukleniyor").hide();
+
+                        connection.invoke("GetName");//isimleri tutan methoda istek yaparız ve tetikleriz artık üye olan kullanıcılar görür eğer tetiklemezsek dinleyen kullanıcılar eklenen veriyi göremez by yüzden sadece o anda aktif olanlar görür
                     })
                     .catch((err) =>//Hata verirse gerçekleşecek method
                     {
@@ -43,7 +47,7 @@
 
             start();
 
-            //Standart client üyeliği örn
+            //Standart client üyeliği örn Clients.All herkes görür
             connection.on("AdiAl", (name) => {//Bir methoda üye olma işlemi on ile gerçekleşir. Önceden dediğimiz gibi signalr tüm clientlara istek gönderir sadece üye olanlar görür üye olunduğunda dönen değere name dedik isimler geldiği için
 
                 $("#namesList").append(`<li class="list-group-item"> ${name} </li>`)//   ` bu işaret  altgr + ,   tuşları ile oluyor ' bununla karıştırma
@@ -51,7 +55,7 @@
             //
 
 
-            //AutomaticReconnect Methods  withAutomaticReconnect() connectionda kullanılırsa, kullanabiliriz
+            //AutomaticReconnect Methods  withAutomaticReconnect() connectionda kullanılırsa, kullanabiliriz Clients.All herkes görür
             connection.onreconnecting(err => { //withAutomaticReconnect() metodunda ilk tekrar istek yaptığında bu method çalışır
                 $("#yukleniyor").show();
                 connectionDurumu();
@@ -70,7 +74,7 @@
             });
             //
 
-            //VirtualMethods üyeliği örn  APı-> MyHub içerisinde override edilen connect ve disconnect metotları
+            //VirtualMethods üyeliği örn  APı-> MyHub içerisinde override edilen connect ve disconnect metotları herkes görür Clients.All
             connection.on("KullaniciSayisiDön", (KullaniciSayisi) => {
                 $("#kullaniciSayisi").text(KullaniciSayisi);
             });
@@ -83,7 +87,25 @@
 
             //
 
-            //Click Button
+            //Clients.Caller sadece uyarıyı ilgili aşımı yapan kişi alır
+            connection.on("Hata", (hatametni) => {
+                alert(hatametni);
+            });
+            //
+
+            //Eklenen Adlar  Clients.All herkes görür
+            connection.on("AdlariAl", (adlar) => {
+                $("#namesList").empty();
+
+                adlar.forEach((item,index) =>
+                {
+                    $("#namesList").append(`<li class="list-group-item"> ${item} </li>`)
+                });
+            });
+            //
+
+
+            //Functions
             $("#btnNameSave").click(() => {
 
                 connection.invoke("SendName", $("#txtName").val())//server tarafına istek atmak için kullanılır invoke SendName SignalR.API->MyHub içerisindeki method

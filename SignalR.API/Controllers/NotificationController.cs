@@ -26,6 +26,7 @@ namespace SignalR.API.Controllers
 
         public  async Task<IActionResult> TakimSayisiDuyur(int TakimSayisi)
         {
+            MyHub.takimSayisi = TakimSayisi;//Eğer sonradan değişirsek
             await _hubContext.Clients.All.SendAsync("Duyuru",$"Arkadaşlar takım {TakimSayisi} kişi olacaktır. Bilginize.");
             return Ok();
         }
