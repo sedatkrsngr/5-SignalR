@@ -26,6 +26,12 @@ namespace SignalR.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(opt=> {
+                opt.AddPolicy("CorsPolicy", builder =>
+                {
+                    builder.WithOrigins("https://localhost:44365").AllowAnyHeader().AllowAnyMethod().AllowCredentials();//SignalR.Web için eklendi ve  SignalR.Web urlim
+                });
+            });
 
             services.AddControllers();
             services.AddSignalR();//Signal kullanýlacaðýný belirtiyoruz
@@ -48,6 +54,8 @@ namespace SignalR.API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors("CorsPolicy");//SignalR.Web için eklendi
 
             app.UseAuthorization();
 

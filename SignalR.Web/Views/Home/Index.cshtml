@@ -2,7 +2,63 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@section Scripts
+{
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script> <!--Bu sınıfı eklemek için proje->Add->Client-Side Library-> provider: unpkg, library: microsoft/signalr ardından Choose spesific files diyip sadece browser içerisindeki signalr.js ve signalr.min.js seçip install diyoruz  -->
+
+    <script type="text/javascript">
+
+        $(document).ready(() => {
+
+            var connection = new signalR.HubConnectionBuilder().withUrl("https://localhost:44380/MyHub").build();//SignalR.API url'im + /MyHub
+            $("#connectionDurumu").text(connection.connectionState);
+
+            connection.start()
+                .then(() =>//Başarılı olursa gerçekleşecek Method
+                {
+                    $("#connectionDurumu").text(connection.connectionState);
+                })
+                .catch((err) =>//Hata verirse gerçekleşecek method
+                {
+                    console.log(err)
+                });
+
+            $("#btnNameSave").click(() => {
+
+                connection.invoke("SendName", $("#txtName").val())//server tarafına istek atmak için kullanılır invoke SendName SignalR.API->MyHub içerisindeki method
+                    .then(() =>//Başarılı olursa gerçekleşecek Method
+                    {
+                        console.log("islem gerceklestirildi")
+                    })
+                    .catch((err) =>//Hata verirse gerçekleşecek method
+                    {
+                        console.log(err)
+                    });
+            });
+
+            connection.on("AdiAl", (name) => {//Bir methoda üye olma işlemi on ile gerçekleşir. Önceden dediğimiz gibi signalr tüm clientlara istek gönderir sadece üye olanlar görür
+
+                $("#namesList").append(`<li class="list-group-item"> ${name} </li>`)//   ` bu işaret  altgr + ,   tuşları ile oluyor ' bununla karıştırma
+            }) 
+        });
+
+       
+    </script>
+}
+
+<div class="row">
+    <div class="col-md-8 offset-2">
+        <input type="text" id="txtName" class="form-control" />
+        <button id="btnNameSave" class="btn btn-primary">İsim Kaydet</button>
+
+        <div class="alert alert-info">
+            Bağlantı Durumu: <strong id="connectionDurumu"></strong>
+        </div>
+    </div>
+
+    <div class="col-md-8 offset-2">
+        <ul class="list-group" id="namesList">
+            
+        </ul>
+    </div>
 </div>
