@@ -29,7 +29,7 @@
                     })
                     .catch((err) =>//Hata verirse gerçekleşecek method
                     {
-                        console.log(err);
+                        console.log(err);//consolda görmek için ekledik
                         setTimeout(() => {//2 saniye sonra bağlantı tekrar denensin 
                             start(),2000
                         });
@@ -41,7 +41,7 @@
             start();
            
 
-            connection.on("AdiAl", (name) => {//Bir methoda üye olma işlemi on ile gerçekleşir. Önceden dediğimiz gibi signalr tüm clientlara istek gönderir sadece üye olanlar görür
+            connection.on("AdiAl", (name) => {//Bir methoda üye olma işlemi on ile gerçekleşir. Önceden dediğimiz gibi signalr tüm clientlara istek gönderir sadece üye olanlar görür üye olunduğunda dönen değere name dedik isimler geldiği için
 
                 $("#namesList").append(`<li class="list-group-item"> ${name} </li>`)//   ` bu işaret  altgr + ,   tuşları ile oluyor ' bununla karıştırma
             });
