@@ -1,0 +1,37 @@
+﻿
+@{
+    ViewData["Title"] = "Index2";
+}
+
+
+
+@section Scripts
+{
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+
+    <script type="text/javascript">
+
+       
+
+            var connection = new signalR.HubConnectionBuilder().withUrl("/MyHub").build();//Direkt olarak kendi içerisinde kullanacağı için link vermeye gerek yok diğer herşey aynı
+
+
+            connection.start()
+                .then(() =>//Başarılı olursa gerçekleşecek Method
+                {
+                    console.log(connection.connectionState);
+                })
+                .catch((err) =>//Hata verirse gerçekleşecek method
+                {
+                    console.log(err);
+                });
+
+
+
+    </script>
+}
+
+
+
+<h1>Index2</h1>
+
