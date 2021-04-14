@@ -193,9 +193,23 @@
 
 
             });
+            //Complex Parameter
 
+            $("#btnUrun").click(() => {
+
+                let urun = { "Id": 1, "Name": "Kalem", "Price": 100, "Stock": 200 }
+
+                connection.invoke("SendProduct", urun)
+            });
+
+            connection.on("ÜrünleriBildir", (gelenUrun) => {
+
+                console.log(gelenUrun)
+            })
 
         });
+
+     
 
 
     </script>
@@ -206,6 +220,7 @@
         <input type="text" id="txtName" class="form-control" />
         <button id="btnNameSave" class="btn btn-primary">İsim Kaydet</button>
         <button id="btnNameTeam" class="btn btn-warning">İsim Kaydet(Takım)</button>
+        <button id="btnUrun" class="btn btn-info">Ürün Gönder</button>
 
         <div class="alert alert-info mt-2">
             <div class="float-left">

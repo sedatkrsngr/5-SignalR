@@ -107,6 +107,11 @@ namespace SignalR.API.Hubs
         }
 
 
+        public async Task SendProduct(Product product)//Complex
+        {
+            await Clients.All.SendAsync("ÜrünleriBildir", product);
+        }
+
 
     }
 }
