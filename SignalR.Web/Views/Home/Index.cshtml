@@ -17,7 +17,7 @@
             // bu saniyeleri kendimiz vermek istiyorsak withAutomaticReconnect([1000,3000,5000,7000]) burada 1,3,5,7 saniye yaptık bu methodda zorunlu değil
 
 
-         
+
 
 
             function connectionDurumu() {
@@ -31,7 +31,9 @@
                         connectionDurumu();
                         $("#yukleniyor").hide();
 
-                        connection.invoke("GetName");//isimleri tutan methoda istek yaparız ve tetikleriz artık üye olan kullanıcılar görür eğer tetiklemezsek dinleyen kullanıcılar eklenen veriyi göremez by yüzden sadece o anda aktif olanlar görür
+                        //connection.invoke("GetName");//isimleri tutan methoda istek yaparız ve tetikleriz artık üye olan kullanıcılar görür eğer tetiklemezsek dinleyen kullanıcılar eklenen veriyi göremez by yüzden sadece o anda aktif olanlar görür
+                        //Yukardaki önceki örnek içindi
+                        connection.invoke("TakimaİsimleriGönder")//Başlarken takımlar isimleri görsün
                     })
                     .catch((err) =>//Hata verirse gerçekleşecek method
                     {
@@ -93,16 +95,15 @@
             });
             //
 
-            //Eklenen Adlar  Clients.All herkes görür
-            connection.on("AdlariAl", (adlar) => {
-                $("#namesList").empty();
+            //Eklenen Adlar  Clients.All herkes görür  Önceki örneklerde kullanmıştık şimdi gerek yok
+            //connection.on("AdlariAl", (adlar) => {
+            //    $("#namesList").empty();
 
-                adlar.forEach((item,index) =>
-                {
-                    $("#namesList").append(`<li class="list-group-item"> ${item} </li>`)
-                });
-            });
-            //
+            //    adlar.forEach((item, index) => {
+            //        $("#namesList").append(`<li class="list-group-item"> ${item} </li>`)
+            //    });
+            //});
+            ////
 
 
             //Functions
@@ -119,6 +120,81 @@
                     });
             });
 
+
+            //teams işlemleri
+
+            $("#btnNameTeam").click(() => {
+
+                let name = $("#txtName").val()
+                let teamname = $("input[type=radio]:checked").val()
+                if (teamname == null) {
+                    alert("Takim Secimi Zorunlu!");
+                }
+
+                connection.invoke("TakimaİsimGönder", name, teamname).catch((err) => {
+                    console.log(err)
+                })
+            });
+
+
+            $("input[type=radio]").change(() => {// O anda hangi grupta aktifsek o grubun hub tarafına eklensin
+
+                let teamName = $("input[type=radio]:checked").val();
+
+                if (teamName == "Team A") {
+                    connection.invoke("TakimaEkle", teamName);
+                    connection.invoke("TakimdanCikar", "Team B");
+                }
+                else {
+
+                    connection.invoke("TakimaEkle", teamName);
+                    connection.invoke("TakimdanCikar", "Team A");
+                }
+
+            });
+
+
+
+
+            connection.on("GrubaisimBildir", (name, teamId) => {
+
+                let listName;
+                if (teamId == 1) {
+                    listName = "ATeamList";
+                }
+                else {
+                    listName = "BTeamList";
+                }
+
+                $(`#${listName}`).append(`<li class="list-group-item">${name}</li>`)
+            });
+
+            connection.on("GrubaİsimleriBildir", (teams) => {
+
+                $("#namesList").empty();
+
+                teams.forEach((item, index) => {//item burda team
+
+                    let listName;
+                    if (item.teamId == 1) {
+                        listName = "ATeamList";
+                    }
+                    else {
+                        listName = "BTeamList";
+                    }
+
+                    item.users.forEach((item2, index2) => {//item2 user adı
+
+                        $(`#${listName}`).append(`<li class="list-group-item">${item2.name}</li>`)
+                    });
+
+                  
+                });
+
+
+            });
+
+
         });
 
 
@@ -129,8 +205,9 @@
     <div class="col-md-8 offset-2">
         <input type="text" id="txtName" class="form-control" />
         <button id="btnNameSave" class="btn btn-primary">İsim Kaydet</button>
+        <button id="btnNameTeam" class="btn btn-warning">İsim Kaydet(Takım)</button>
 
-        <div class="alert alert-info">
+        <div class="alert alert-info mt-2">
             <div class="float-left">
                 Bağlantı Durumu: <strong id="connectionDurumu"></strong>
                 ,Kullanici Sayisi: <strong id="kullaniciSayisi"></strong>
@@ -145,8 +222,43 @@
         <div id="duyuru"></div>
     </div>
 
+
+</div>
+<div class="row">
+
+    <div class="col-md-8 offset-md-2">
+        <div class="form-check form-check-inline">
+            <h2>A TAKIMI</h2>
+            <input class="form-check-input" type="radio" name="TeamGroup" value="Team A" />
+            <label class="form-check-label">A Takımı</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <h2>B TAKIMI</h2>
+            <input class="form-check-input" type="radio" name="TeamGroup" value="Team B" />
+            <label class="form-check-label">B Takımı</label>
+        </div>
+
+    </div>
+
     <div class="col-md-8 offset-2">
+
+        <div class="row">
+
+            <div class="col-md-6">
+                <ul class="list-group" id="ATeamList">
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <ul class="list-group" id="BTeamList">
+                </ul>
+            </div>
+        </div>
+
+
+
         <ul class="list-group" id="namesList">
         </ul>
     </div>
+
+
 </div>

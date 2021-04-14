@@ -2,12 +2,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using SignalR.API.Hubs;
+using SignalR.API.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +28,10 @@ namespace SignalR.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<AppDbContext>(opt=> {//Sonradan eklendi
+                opt.UseSqlServer(Configuration["ConStr"]);
+            });
+
             services.AddCors(opt=> {
                 opt.AddPolicy("CorsPolicy", builder =>
                 {
